@@ -1,4 +1,5 @@
 #include "MapGenerator.h"
+#include "MyBodyParser.h"
 
 USING_NS_CC;
 
@@ -14,6 +15,12 @@ MapGenerator::MapGenerator(cocos2d::Layer *layer)
     createBoxBlock1(12, Vec2(0,0), false, false);
     createBoxBlock1(15, end_point, true, true);
     createBoxBlock1(1, Vec2(200,98), true, true);
+
+
+	MyBodyParser::getInstance()->parseJsonFile( "maps/map1.json" );
+
+	MyBodyParser::getInstance()->generateMap();
+
 
 }
 

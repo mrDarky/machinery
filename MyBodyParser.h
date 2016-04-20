@@ -14,4 +14,6 @@ public:
     bool parse(unsigned char* buffer, long length);
     void clearCache();
     PhysicsBody* bodyFormJson(Node* pNode, const std::string& name, PhysicsMaterial material);
+
+    void generateMap();
 };

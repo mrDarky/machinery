@@ -81,3 +81,15 @@ PhysicsBody* MyBodyParser::bodyFormJson(cocos2d::Node *pNode, const std::string&
     }
     return body;
 }
+
+void MyBodyParser::generateMap()
+{
+    rapidjson::Value &map = doc["map"];
+    if(map.IsArray())
+    {
+        for (unsigned int i = 0; i < map.Size(); ++i)
+        {
+            
+        }
+    }
+}
