@@ -1,0 +1,54 @@
+#ifndef __WORLD_SCENE_H__
+#define __WORLD_SCENE_H__
+
+#include "cocos2d.h"
+#include "MySprite.h"
+#include "Turel.h"
+#include "MapGenerator.h"
+#include "Circle.h"
+#include <map>
+
+class WorldScene : public cocos2d::Layer
+{
+public:
+    static cocos2d::Scene* createScene();
+
+    virtual bool init();
+    
+    // a selector callback
+    void menuCloseCallback(cocos2d::Ref* pSender);
+
+    bool isKeyPressed(cocos2d::EventKeyboard::KeyCode);
+
+
+    
+    // implement the "static create()" method manually
+    CREATE_FUNC(WorldScene);
+
+    virtual void update(float delta) override;
+
+    
+
+private:
+	cocos2d::PhysicsWorld *sceneWorld;
+
+    void SetPhysicsWorld( cocos2d::PhysicsWorld *world ) { sceneWorld = world; };
+
+    static std::map<cocos2d::EventKeyboard::KeyCode,
+        std::chrono::high_resolution_clock::time_point> keys;
+
+    MySprite* _mySprite;
+    Turel* _turel;
+    Turel* _turel2;
+    MapGenerator* _map_create;
+    Circle* _circlePoint;
+    cocos2d::DrawNode* circlePoint;
+
+    void onEnter();
+    void updateSec(float delta);
+
+    bool jumpHero;
+    
+};
+
+#endif // __WORLD_SCENE_H__
