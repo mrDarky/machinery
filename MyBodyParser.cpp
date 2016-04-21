@@ -89,7 +89,12 @@ void MyBodyParser::generateMap()
     {
         for (unsigned int i = 0; i < map.Size(); ++i)
         {
-            
+            rapitjson::Value &material = map[i];
+
+            if(material.IsObject())
+            {
+                
+            }
         }
     }
 }
