@@ -3,7 +3,7 @@
 #include <string>
 #include "cocos2d.h"
 USING_NS_CC;
-#include "json/document.h"
+#include "rapidjson/document.h"
 
 class MyBodyParser {
     MyBodyParser(){}

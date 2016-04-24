@@ -43,7 +43,7 @@ PhysicsBody* MyBodyParser::bodyFormJson(cocos2d::Node *pNode, const std::string&
     if (bodies.IsArray())
     {
 
-        for (int i=0; i<bodies.Size(); ++i)
+        for (unsigned int i=0; i<bodies.Size(); ++i)
         {
 
             if (0 == strcmp(name.c_str(), bodies[i]["name"].GetString()))
@@ -58,7 +58,7 @@ PhysicsBody* MyBodyParser::bodyFormJson(cocos2d::Node *pNode, const std::string&
 
                     Point origin( bd["origin"]["x"].GetDouble(), bd["origin"]["y"].GetDouble());
                     rapidjson::Value &polygons = bd["polygons"];
-                    for (int i = 0; i<polygons.Size(); ++i)
+                    for (unsigned int i = 0; i<polygons.Size(); ++i)
                     {
                         int pcount = polygons[i].Size();
                         Point* points = new Point[pcount];
@@ -85,15 +85,32 @@ PhysicsBody* MyBodyParser::bodyFormJson(cocos2d::Node *pNode, const std::string&
 void MyBodyParser::generateMap()
 {
     rapidjson::Value &map = doc["map"];
+
     if(map.IsArray())
     {
-        for (unsigned int i = 0; i < map.Size(); ++i)
+        for (unsigned int i = 0; i < map.Size(); i++)
         {
-            rapitjson::Value &material = map[i];
+            rapidjson::Value &material = map[i]["material"];
 
             if(material.IsObject())
             {
-                
+                if(!material["weapon"].GetBool())
+                {
+                    std::string res = material["resource"].GetString();
+                    rapidjson::Value &horiz = material["horizontal"];
+
+                    for (unsigned int j = 0; j < horiz.Size(); j++)
+                    {
+                        auto line = Sprite::create(res);
+                        auto physicsBody = PhysicsBody::createBox(Size(line->getContentSize().width*fabs(line->getScaleX()),
+                                                            line->getContentSize().height*fabs(line->getScaleY())), 
+                                                    PhysicsMaterial(0.0f, 0.0f, 1.0f));
+                        line->setScale(visibleSize.width/wall_point->getContentSize().width*0.1,visibleSize.width/wall_point->getContentSize().width*0.1);
+
+
+
+                    }
+                 }
             }
         }
     }
