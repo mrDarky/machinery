@@ -82,7 +82,7 @@ PhysicsBody* MyBodyParser::bodyFormJson(cocos2d::Node *pNode, const std::string&
     return body;
 }
 
-void MyBodyParser::generateMap()
+void MyBodyParser::generateMap(cocos2d::Layer *layer)
 {
     rapidjson::Value &map = doc["map"];
 
@@ -102,12 +102,46 @@ void MyBodyParser::generateMap()
                     for (unsigned int j = 0; j < horiz.Size(); j++)
                     {
                         auto line = Sprite::create(res);
+                        line->setAnchorPoint(Vec2(0,0));
+
+                        auto physicsBody = PhysicsBody::createBox(Size(line->getContentSize().width,
+                                                            line->getContentSize().height), 
+                                                    PhysicsMaterial(0.0f, 0.0f, 1.0f));
+                        physicsBody->setDynamic(false);
+                       
+                        
+                        
+                        line->setScale(horiz[j][1].GetInt()*horiz[j][2].GetInt()/line->getContentSize().width, 
+                                        horiz[j][2].GetInt()/line->getContentSize().height);
+
+                        line->setPosition(horiz[j][2].GetInt()*horiz[j][0][0].GetInt(), horiz[j][2].GetInt()*horiz[j][0][1].GetInt());
+                        
+                        line->setPhysicsBody(physicsBody);
+                        layer->addChild(line);
+
+
+                    }
+
+                    rapidjson::Value &vertic = material["vertical"];
+
+                    for (unsigned int j = 0; j < vertic.Size(); j++)
+                    {
+                        auto line = Sprite::create(res);
+                        line->setAnchorPoint(Vec2(0,0));
+
                         auto physicsBody = PhysicsBody::createBox(Size(line->getContentSize().width*fabs(line->getScaleX()),
                                                             line->getContentSize().height*fabs(line->getScaleY())), 
                                                     PhysicsMaterial(0.0f, 0.0f, 1.0f));
-                        line->setScale(visibleSize.width/wall_point->getContentSize().width*0.1,visibleSize.width/wall_point->getContentSize().width*0.1);
+                        physicsBody->setDynamic(false);
+                        
 
-
+                       
+                        line->setScale(vertic[j][2].GetInt()/line->getContentSize().width,
+                                        vertic[j][1].GetInt()*vertic[j][2].GetInt()/line->getContentSize().height);
+                        line->setPosition(vertic[j][2].GetInt()*vertic[j][0][0].GetInt(), vertic[j][2].GetInt()*vertic[j][0][1].GetInt());
+                        
+                        line->setPhysicsBody(physicsBody);
+                        layer->addChild(line);
 
                     }
                  }

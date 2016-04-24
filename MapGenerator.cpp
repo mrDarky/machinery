@@ -19,7 +19,7 @@ MapGenerator::MapGenerator(cocos2d::Layer *layer)
 
 	MyBodyParser::getInstance()->parseJsonFile( "maps/map1.json" );
 
-	MyBodyParser::getInstance()->generateMap();
+	MyBodyParser::getInstance()->generateMap(layer);
 
 
 }

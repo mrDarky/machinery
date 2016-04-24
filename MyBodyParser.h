@@ -15,5 +15,5 @@ public:
     void clearCache();
     PhysicsBody* bodyFormJson(Node* pNode, const std::string& name, PhysicsMaterial material);
 
-    void generateMap();
+    void generateMap(cocos2d::Layer *layer);
 };
