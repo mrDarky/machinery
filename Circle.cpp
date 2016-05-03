@@ -19,6 +19,7 @@ Circle::Circle(cocos2d::Layer* layer)
 
   followCircle = DrawNode::create();
   followCircle->drawCircle(Vec2(0,0), 10, 10, 60, false, Color4F::WHITE);
+  followCircle->setVisible(false);
 
   layer->runAction(Follow::create(followCircle));
   layer->addChild(followCircle);

@@ -25,8 +25,7 @@ void Turel::createTurel_type1(cocos2d::Vec2 pos_turel, bool orient)
 		turel->setScale(visibleSize.width/turel->getContentSize().width*0.15, visibleSize.width/turel->getContentSize().height*0.05);
 
 	turel->setPosition(pos_turel);
-	//turel->setScaleX
-
+	
 	auto spriteBody = MyBodyParser::getInstance()->bodyFormJson(turel, "Turel", PhysicsMaterial( 0, 0, 0 ) ); 
 
 

@@ -115,14 +115,14 @@ void WorldScene::update(float delta)
     }
 
 
-    
 
-        if(_circlePoint->getFocusVec().x >= visibleSize.width/2)
-            _circlePoint->getFollowCircle()->setPosition( Vec2 (_mySprite->returnHero()->getPosition().x+200*cosf(_circlePoint->getFocusAngle() ),
-                                                        _mySprite->returnHero()->getPosition().y-200*sinf(-_circlePoint->getFocusAngle()) ) );
-        else
-            _circlePoint->getFollowCircle()->setPosition( Vec2 (_mySprite->returnHero()->getPosition().x-200*cosf(-_circlePoint->getFocusAngle() ),
-                                                        _mySprite->returnHero()->getPosition().y-200*sinf(_circlePoint->getFocusAngle()) ) );
+
+    if(_circlePoint->getFocusVec().x > visibleSize.width/2)
+        _circlePoint->getFollowCircle()->setPosition( Vec2 (_mySprite->returnHero()->getPosition().x+coef*cosf(_circlePoint->getFocusAngle() ),
+                                                    _mySprite->returnHero()->getPosition().y-coef*sinf(-_circlePoint->getFocusAngle()) ) );
+    else
+        _circlePoint->getFollowCircle()->setPosition( Vec2 (_mySprite->returnHero()->getPosition().x-coef*cosf(-_circlePoint->getFocusAngle() ),
+                                                    _mySprite->returnHero()->getPosition().y-coef*sinf(_circlePoint->getFocusAngle()) ) );
 
   
 }
@@ -183,17 +183,26 @@ void WorldScene::onMouseMove(Event *event)
 {
     EventMouse* e = (EventMouse*)event;
 
-        
-    float angle = (atanf((visibleSize.height/2 - e->getCursorY())/(visibleSize.width/2 - e->getCursorX())));
+    float angle;
+    //if(visibleSize.height/2 - e->getCursorY()!=0 && visibleSize.width/2 - e->getCursorX() !=0)    
+        angle = atanf((visibleSize.height/2 - e->getCursorY())/(visibleSize.width/2 - e->getCursorX()));
+    // else
+    //     angle=0;
     _circlePoint->setFocusAngle(angle);
     _circlePoint->setFocusVec( Vec2 (e->getCursorX(), e->getCursorY() ));
-    if(e->getCursorX() >= visibleSize.width/2){
-        _circlePoint->getFollowCircle()->setPosition( Vec2 (_mySprite->returnHero()->getPosition().x+200*cosf(angle),
-                                            _mySprite->returnHero()->getPosition().y-200*sinf(-angle) ) );
+
+    float x = sqrtf(fabs((e->getCursorX()-visibleSize.width/2)*(e->getCursorX()-visibleSize.width/2)) + fabs((e->getCursorY()-visibleSize.height/2)*(e->getCursorY()-visibleSize.height/2)));
+    float x_max = sqrtf(visibleSize.width*visibleSize.width/4+visibleSize.height*visibleSize.height/4);
+
+    coef = 200*(x/x_max);
+
+    if(e->getCursorX() > visibleSize.width/2){
+        _circlePoint->getFollowCircle()->setPosition( Vec2 (_mySprite->returnHero()->getPosition().x+coef*cosf(angle),
+                                            _mySprite->returnHero()->getPosition().y-coef*sinf(-angle) ) );
         
     }else if(e->getCursorX() < visibleSize.width/2){
-        _circlePoint->getFollowCircle()->setPosition( Vec2 (_mySprite->returnHero()->getPosition().x-200*cosf(-angle),
-                                            _mySprite->returnHero()->getPosition().y-200*sinf(angle) ) );
+        _circlePoint->getFollowCircle()->setPosition( Vec2 (_mySprite->returnHero()->getPosition().x-coef*cosf(-angle),
+                                            _mySprite->returnHero()->getPosition().y-coef*sinf(angle) ) );
     }
 }
 

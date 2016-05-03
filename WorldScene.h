@@ -18,16 +18,10 @@ public:
     // a selector callback
     void menuCloseCallback(cocos2d::Ref* pSender);
 
-    bool isKeyPressed(cocos2d::EventKeyboard::KeyCode);
-
-
-    
     // implement the "static create()" method manually
     CREATE_FUNC(WorldScene);
 
     virtual void update(float delta) override;
-
-    
 
 private:
 	cocos2d::PhysicsWorld *sceneWorld;
@@ -44,7 +38,6 @@ private:
 
     MapGenerator* _map_create;
     Circle* _circlePoint;
-    cocos2d::DrawNode* circlePoint;
 
     void onEnter();
     void updateSec(float delta);
@@ -54,6 +47,7 @@ private:
 
     void onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event);
     void onKeyReleased(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event);
+    bool isKeyPressed(cocos2d::EventKeyboard::KeyCode);
 
     bool onContactBegin(cocos2d::PhysicsContact& contact);
 
@@ -62,6 +56,7 @@ private:
 
 
     bool jumpHero;
+    float coef;
     
 };
 
