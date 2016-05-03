@@ -34,18 +34,21 @@ private:
 
     void SetPhysicsWorld( cocos2d::PhysicsWorld *world ) { sceneWorld = world; };
 
+    cocos2d::Size visibleSize;
+    cocos2d::Vec2 origin;
+
     static std::map<cocos2d::EventKeyboard::KeyCode,
         std::chrono::high_resolution_clock::time_point> keys;
 
     MySprite* _mySprite;
-    Turel* _turel;
-    Turel* _turel2;
+
     MapGenerator* _map_create;
     Circle* _circlePoint;
     cocos2d::DrawNode* circlePoint;
 
     void onEnter();
     void updateSec(float delta);
+    void update_delSec(float delta);
 
     bool jumpHero;
     

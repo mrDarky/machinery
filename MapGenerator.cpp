@@ -10,11 +10,11 @@ MapGenerator::MapGenerator(cocos2d::Layer *layer)
 
     layer1=layer;
 
-    createBoxBlock1(15, Vec2(0,0), true, true);
-    createBoxBlock1(12, end_point, false, false);
-    createBoxBlock1(12, Vec2(0,0), false, false);
-    createBoxBlock1(15, end_point, true, true);
-    createBoxBlock1(1, Vec2(200,98), true, true);
+    // createBoxBlock1(15, Vec2(0,0), true, true);
+    // createBoxBlock1(12, end_point, false, false);
+    // createBoxBlock1(12, Vec2(0,0), false, false);
+    // createBoxBlock1(15, end_point, true, true);
+    // createBoxBlock1(1, Vec2(200,98), true, true);
 
 
 	MyBodyParser::getInstance()->parseJsonFile( "maps/map1.json" );

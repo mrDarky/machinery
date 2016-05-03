@@ -25,10 +25,17 @@ bool WorldScene::init()
         return false;
     }
     
-    Size visibleSize = Director::getInstance()->getVisibleSize();
-    Vec2 origin = Director::getInstance()->getVisibleOrigin();
+    visibleSize = Director::getInstance()->getVisibleSize();
+    origin = Director::getInstance()->getVisibleOrigin();
 
     jumpHero = false;
+
+    // auto background = Sprite::create("blue_fon1.jpg");
+    // background->setPosition( Vec2(visibleSize.width, 
+    //                             visibleSize.height));
+    // background->setScale(2,2);
+    // this->addChild(background, 0);
+
 
 
     auto edgeBody = PhysicsBody::createEdgeSegment(Vec2(0,0), Vec2(500,0), PHYSICSBODY_MATERIAL_DEFAULT, 3 );
@@ -55,9 +62,11 @@ bool WorldScene::init()
     _mySprite = new MySprite(this);
     _mySprite->addEvents();
 
-   // _turel = new Turel(this, Vec2(190,220), true);
-    _turel = Turel::CreateStandTurel(this, Vec2(190,220), true, 1);
-    _turel2 = Turel::CreateStandTurel(this, Vec2(1490,220), false,1);
+    auto box = Node::create();
+    auto phizik1 = PhysicsBody::createBox(Size(100,100), PhysicsMaterial(0,0,0));
+    box->setPhysicsBody(phizik1);
+    box->setPosition(Vec2(1000,1000));
+    this->addChild(box);
 
 
 
@@ -89,7 +98,8 @@ bool WorldScene::init()
 
 
     };
-    eventListener->onKeyReleased = [=](EventKeyboard::KeyCode keyCode, Event* event){
+    eventListener->onKeyReleased = [=](EventKeyboard::KeyCode keyCode, Event* event)
+    {
         // remove the key.  std::map.erase() doesn't care if the key doesnt exist
         
         
@@ -99,9 +109,32 @@ bool WorldScene::init()
 
 
 ////[end] keybordEvent
+////[start] mouseEvent
+    auto mouseListener = EventListenerMouse::create();
+
+    mouseListener->onMouseMove = [=](Event *event)
+    {
+        EventMouse* e = (EventMouse*)event;
+
+        
+        float angle = (atanf((visibleSize.height/2 - e->getCursorY())/(visibleSize.width/2 - e->getCursorX())));
+        _circlePoint->setFocusAngle(angle);
+        _circlePoint->setFocusVec( Vec2 (e->getCursorX(), e->getCursorY() ));
+        if(e->getCursorX() >= visibleSize.width/2){
+            _circlePoint->getFollowCircle()->setPosition( Vec2 (_mySprite->returnHero()->getPosition().x+200*cosf(angle),
+                                                _mySprite->returnHero()->getPosition().y-200*sinf(-angle) ) );
+            
+        }else if(e->getCursorX() < visibleSize.width/2){
+            _circlePoint->getFollowCircle()->setPosition( Vec2 (_mySprite->returnHero()->getPosition().x-200*cosf(-angle),
+                                                _mySprite->returnHero()->getPosition().y-200*sinf(angle) ) );
+        }
+        //e->getCursorX()
+    };
+
+    this->_eventDispatcher->addEventListenerWithSceneGraphPriority(mouseListener, this);
 
 
-
+////[end] mouseEvent
 ////[start] contacts event
     auto contactListener = EventListenerPhysicsContact::create();
     contactListener->onContactBegin = [=](PhysicsContact& contact){
@@ -159,6 +192,10 @@ bool WorldScene::init()
         auto bounds = event->getCurrentTarget()->getBoundingBox();
         _circlePoint->getCircle()->setVisible(true);
         _circlePoint->getCircle_Sector()->setVisible(true);
+        //this->schedule(schedule_selector(WorldScene::updateSec), 5.0f);
+
+
+
        // _mySprite->returnHero()->setPosition(event->getCurrentTarget()->convertToNodeSpace(touch->getLocation()));
         if (bounds.containsPoint(touch->getLocation())){
 
@@ -184,18 +221,24 @@ bool WorldScene::init()
             _circlePoint->getCircle()->setVisible(false);
             _circlePoint->getCircle_Sector()->setVisible(false);
 
+            //this->schedule(schedule_selector(WorldScene::updateSec), 0.3f);
+
             if(_circlePoint->getCircleOverload()+45.0<360){
                 _circlePoint->setCircleOverload(_circlePoint->getCircleOverload()+45.0);
                 _mySprite->returnHero()->setPosition(event->getCurrentTarget()->convertToNodeSpace(touch->getLocation()));
             }
         };
 
-   Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(touchListener,this);
+    Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(touchListener,this);
 ////[end] click event
 
 
+
+
     this->schedule(schedule_selector(WorldScene::updateSec), 0.3f);
+    this->schedule(schedule_selector(WorldScene::update_delSec), 0.01f);
     this->scheduleUpdate();
+
 
     return true;
 }
@@ -220,6 +263,7 @@ void WorldScene::update(float delta)
         _circlePoint->setCircleOverload(_circlePoint->getCircleOverload()-0.5);
     _circlePoint->reloadSector_new();
 
+    
 
     Node::update(delta);
     Layer::update(delta);
@@ -229,14 +273,21 @@ void WorldScene::update(float delta)
         _mySprite->returnHero()->getPhysicsBody()->setVelocity(Vec2(0, _mySprite->returnHero()->getPhysicsBody()->getVelocity().y));
     }
 
+    for (unsigned int i = 0; i < Turel::get_allTurel().size(); ++i)
+    {
+        Turel::get_allTurel()[i]->followHero(_mySprite->returnHero()->getPosition());
+    }
 
-   
-    _turel->followHero(_mySprite->returnHero()->getPosition());
-    _turel2->followHero(_mySprite->returnHero()->getPosition());
+
     
 
+        if(_circlePoint->getFocusVec().x >= visibleSize.width/2)
+            _circlePoint->getFollowCircle()->setPosition( Vec2 (_mySprite->returnHero()->getPosition().x+200*cosf(_circlePoint->getFocusAngle() ),
+                                                        _mySprite->returnHero()->getPosition().y-200*sinf(-_circlePoint->getFocusAngle()) ) );
+        else
+            _circlePoint->getFollowCircle()->setPosition( Vec2 (_mySprite->returnHero()->getPosition().x-200*cosf(-_circlePoint->getFocusAngle() ),
+                                                        _mySprite->returnHero()->getPosition().y-200*sinf(_circlePoint->getFocusAngle()) ) );
 
-    //_turel->add_Bullet();
   
 }
 
@@ -261,9 +312,17 @@ void WorldScene::onEnter()
 
 void WorldScene::updateSec(float delta)
 {
-    _turel->add_Bullet();
-    _turel2->add_Bullet();
-    //_turel->getPos_bullet();
+
+    
+     for (unsigned int i = 0; i < Turel::get_allTurel().size(); ++i)
+    {
+        Turel::get_allTurel()[i]->add_Bullet();
+    }
+
+}
+void WorldScene::update_delSec(float delta)
+{
+
 }
 
 

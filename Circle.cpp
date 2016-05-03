@@ -16,6 +16,13 @@ Circle::Circle(cocos2d::Layer* layer)
   reloadSector->setVisible(false);
   drawSector(reloadSector, Vec2(100,100), 200, circle_overload, Color4F::RED, 3, 100);
   layer->addChild(reloadSector,4);
+
+  followCircle = DrawNode::create();
+  followCircle->drawCircle(Vec2(0,0), 10, 10, 60, false, Color4F::WHITE);
+
+  layer->runAction(Follow::create(followCircle));
+  layer->addChild(followCircle);
+
 }
 
 Circle::~Circle(){}
@@ -58,6 +65,11 @@ cocos2d::DrawNode* Circle::getCircle_Sector()
   return reloadSector;
 }
 
+cocos2d::DrawNode* Circle::getFollowCircle()
+{
+  return followCircle;
+}
+
 float Circle::getCircleOverload()
 {
   return circle_overload;
@@ -72,4 +84,25 @@ void Circle::reloadSector_new()
 {
   reloadSector->clear();
   drawSector(reloadSector, Vec2(100,100), 200, circle_overload, Color4F::RED, 4, 10*circle_overload);
+}
+
+
+void Circle::setFocusVec(cocos2d::Vec2 coord)
+{
+  newCoord = coord;
+}
+
+cocos2d::Vec2 Circle::getFocusVec()
+{
+  return newCoord;
+}
+
+void Circle::setFocusAngle(float angle)
+{
+  focusAngle = angle;
+}
+
+float Circle::getFocusAngle()
+{
+  return focusAngle;
 }

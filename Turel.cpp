@@ -9,18 +9,15 @@ Turel* Turel::CreateStandTurel(cocos2d::Layer* layer, cocos2d::Vec2 pos_turel, b
 {
 	Turel *mainTurel = new (std::nothrow) Turel(layer, pos_turel, orient, type);
 
-	// if(mainTurel)
-	// {
-	 	return mainTurel;
-//	}
 
-	// delete mainTurel;
-	// return nullptr;
+	all_turel.insert(all_turel.end(), mainTurel);
+	return mainTurel;
 }
  
 void Turel::createTurel_type1(cocos2d::Vec2 pos_turel, bool orient)
 {
 	turel = Sprite::create("turel.png");
+	
 	
 	if(orient)
 		turel->setScale(-visibleSize.width/(turel->getContentSize().width)*0.15,visibleSize.width/(turel->getContentSize().height)*0.05);
@@ -69,6 +66,7 @@ Turel::Turel(cocos2d::Layer* layer, cocos2d::Vec2 pos_turel, bool orient, int ty
 
 	layer1 = layer;
 	shoot=true;
+	orientation=orient;
 
 	visibleSize = Director::getInstance()->getVisibleSize();
     origin = Director::getInstance()->getVisibleOrigin();
@@ -90,7 +88,13 @@ Turel::Turel(cocos2d::Layer* layer, cocos2d::Vec2 pos_turel, bool orient, int ty
 
 }
 
-Turel::~Turel(){}
+Turel::~Turel(){
+	for(unsigned i=0; i< all_turel.size(); ++i)
+	{
+		delete[] all_turel[i];
+	}
+	
+}
 
 void Turel::addEvents()
 {}
@@ -103,19 +107,39 @@ cocos2d::Sprite *Turel::getTurel()
 void Turel::followHero(cocos2d::Vec2 pos_hero)
 {
 	Vec2 pos_turel = turel->getPosition();
-	angle = atan((pos_hero.y-pos_turel.y)/(pos_hero.x-pos_turel.x))*57;
 
-	if(pos_hero.x>pos_turel.x){
-		angle = -angle;
-		turel->setRotation(angle);
-		shoot=true;
+	angle = CC_RADIANS_TO_DEGREES(atan((pos_hero.y-pos_turel.y)/(pos_hero.x-pos_turel.x)));
+
+
+	if(pos_hero.x > pos_turel.x){
+		if(orientation)
+		{	
+			angle = -(angle-5);
+			turel->setRotation(angle);
+			shoot=true;
+		}
+		else
+		{
+			turel->setRotation(angle);
+			shoot=false;
+		}
 	}
 	else
 	{
-
-		turel->setRotation(angle);
-		shoot=false;
+		if(orientation)
+		{
+			turel->setRotation(angle);
+			shoot=false;
+		}
+		else
+		{
+			angle = -(angle+5);
+			turel->setRotation(angle);
+			shoot=true;
+		}
+		
 	}
+	
 }
 
 
@@ -126,22 +150,35 @@ cocos2d::Vec2 Turel::getPos_bullet()
 	Vec2 pos_turel_end = Vec2(turel->getPosition().x+turel->getContentSize().width*fabs(turel->getScaleX()), turel->getPosition().y);
 
 	float coor1_x = pos_turel_end.x - pos_turel_start.x;
-	float coor1_y = pos_turel_end.y - pos_turel_start.y;
+	float coor1_y = pos_turel_end.y - pos_turel_start.y+turel->getBoundingBox().size.height;
 	//CCLOG("%f", cos(angle));
 	// if(angle<0)
 	// {
 	// 	angle=-angle;
 	// }
 	float formula1_x, formula1_y;
-	formula1_x = cosf(angle/57)*sqrtf(coor1_x*coor1_x+coor1_y*coor1_y)+pos_turel_start.x+50;
+	if(orientation)
+		formula1_x = cosf(CC_DEGREES_TO_RADIANS(angle))*sqrtf(coor1_x*coor1_x+coor1_y*coor1_y)+pos_turel_start.x;
+	else
+		formula1_x = -cosf(CC_DEGREES_TO_RADIANS(angle))*sqrtf(coor1_x*coor1_x+coor1_y*coor1_y)+pos_turel_start.x;
+	
 	if(angle<0){
-		
-		formula1_y = cosf((90-(-angle))/57)*sqrtf(coor1_x*coor1_x+coor1_y*coor1_y)+pos_turel_start.y+turel->getContentSize().width/4*fabs(turel->getScaleY());
+		//CCLOG("%f", angle);
+		if(orientation)
+		{
+			formula1_y = cosf(CC_DEGREES_TO_RADIANS(90+angle))*sqrtf(coor1_x*coor1_x+coor1_y*coor1_y)+pos_turel_start.y+turel->getBoundingBox().size.height/4+10;
+		}
+		else
+		{
+			formula1_y = -30-cosf(CC_DEGREES_TO_RADIANS(90+angle))*sqrtf(coor1_x*coor1_x+coor1_y*coor1_y)+pos_turel_start.y+turel->getContentSize().width/4*fabs(turel->getScaleY());
+		}
 	}
 	else
 	{
-		//formula1_x = cos(angle/57)*sqrtf(coor1_x*coor1_x+coor1_y*coor1_y)+pos_turel_start.x;
-		formula1_y = -cosf((90-angle)/57)*sqrtf(coor1_x*coor1_x+coor1_y*coor1_y)+pos_turel_start.y+turel->getContentSize().width*0.01*fabs(turel->getScaleY());
+		if(orientation)
+			formula1_y = -cosf((90-angle)/57)*sqrtf(coor1_x*coor1_x+coor1_y*coor1_y)+pos_turel_start.y+turel->getContentSize().width*0.01*fabs(turel->getScaleY())+30;
+		else 
+			formula1_y = cosf((90-angle)/57)*sqrtf(coor1_x*coor1_x+coor1_y*coor1_y)+pos_turel_start.y+turel->getContentSize().width*0.01*fabs(turel->getScaleY())+40;
 	}
 
 	return cocos2d::Vec2(formula1_x, formula1_y);
@@ -152,7 +189,10 @@ void Turel::add_Bullet()
 	if(shoot)
 	{
 		auto bullet = Sprite::create("bullet1.png");
-		bullet->setScale(-visibleSize.width/bullet->getContentSize().width*0.03, visibleSize.height/bullet->getContentSize().height*0.03);
+		if(orientation)
+			bullet->setScale(-visibleSize.width/bullet->getContentSize().width*0.015, visibleSize.height/bullet->getContentSize().height*0.015);
+		else
+			bullet->setScale(visibleSize.width/bullet->getContentSize().width*0.015, visibleSize.height/bullet->getContentSize().height*0.015);
 		
 		
 
@@ -161,7 +201,11 @@ void Turel::add_Bullet()
 		if ( spriteBody_bullet != nullptr )
 	    {
 	        spriteBody_bullet->setDynamic( true );
-	        spriteBody_bullet->setVelocity(Vec2(1000*cosf(angle/57), -1000*sinf(angle/57)));
+	        if(orientation)
+	        	spriteBody_bullet->setVelocity(Vec2(1000*cosf(angle/57), -1000*sinf(angle/57)));
+	        else
+	        	spriteBody_bullet->setVelocity(Vec2(-1000*cosf(angle/57), 1000*sinf(angle/57)));
+
 	        spriteBody_bullet->setGravityEnable(false);
 	        spriteBody_bullet->setTag(5);
 	        spriteBody_bullet->setContactTestBitmask(1);
@@ -178,3 +222,11 @@ void Turel::add_Bullet()
 		layer1->addChild(bullet);
 	}
 }
+
+std::vector<Turel *> Turel::get_allTurel()
+{
+	return all_turel;
+}
+
+
+std::vector<Turel *> Turel::all_turel;

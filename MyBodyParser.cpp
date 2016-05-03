@@ -1,5 +1,6 @@
 
 #include "MyBodyParser.h"
+#include "Turel.h"
 
 MyBodyParser* MyBodyParser::getInstance()
 {
@@ -86,66 +87,52 @@ void MyBodyParser::generateMap(cocos2d::Layer *layer)
 {
     rapidjson::Value &map = doc["map"];
 
-    if(map.IsArray())
+    if(map.IsObject())
     {
-        for (unsigned int i = 0; i < map.Size(); i++)
+        rapidjson::Value &texture = map["texture"];
+        
+        if(texture.IsArray())
         {
-            rapidjson::Value &material = map[i]["material"];
-
-            if(material.IsObject())
+            for (unsigned int i = 0; i < texture.Size(); ++i)
             {
-                if(!material["weapon"].GetBool())
+                std::string res = texture[i]["resource"].GetString();
+                rapidjson::Value &coordinates = texture[i]["coordinates"];
+
+                for (unsigned int j = 0; j < coordinates.Size(); j++)
                 {
-                    std::string res = material["resource"].GetString();
-                    rapidjson::Value &horiz = material["horizontal"];
+                    auto line = Sprite::create(res);
+                    line->setAnchorPoint(Vec2(0,0));
 
-                    for (unsigned int j = 0; j < horiz.Size(); j++)
-                    {
-                        auto line = Sprite::create(res);
-                        line->setAnchorPoint(Vec2(0,0));
+                    auto physicsBody = PhysicsBody::createBox(Size(line->getContentSize().width,
+                                                        line->getContentSize().height), 
+                                                PhysicsMaterial(0.0f, 0.0f, 1.0f));
+                    physicsBody->setDynamic(false);
+                    physicsBody->setContactTestBitmask(true);
+                    physicsBody->setTag(10);
+                    
+                    line->setScale((coordinates[j][1][0].GetInt()-coordinates[j][0][0].GetInt())/line->getContentSize().width, 
+                                    (coordinates[j][1][1].GetInt()-coordinates[j][0][1].GetInt())/line->getContentSize().height);
 
-                        auto physicsBody = PhysicsBody::createBox(Size(line->getContentSize().width,
-                                                            line->getContentSize().height), 
-                                                    PhysicsMaterial(0.0f, 0.0f, 1.0f));
-                        physicsBody->setDynamic(false);
-                       
-                        
-                        
-                        line->setScale(horiz[j][1].GetInt()*horiz[j][2].GetInt()/line->getContentSize().width, 
-                                        horiz[j][2].GetInt()/line->getContentSize().height);
-
-                        line->setPosition(horiz[j][2].GetInt()*horiz[j][0][0].GetInt(), horiz[j][2].GetInt()*horiz[j][0][1].GetInt());
-                        
-                        line->setPhysicsBody(physicsBody);
-                        layer->addChild(line);
+                    line->setPosition(coordinates[j][0][0].GetInt(), coordinates[j][0][1].GetInt());
+                    
+                    line->setPhysicsBody(physicsBody);
+                    layer->addChild(line);
 
 
-                    }
+                }
 
-                    rapidjson::Value &vertic = material["vertical"];
-
-                    for (unsigned int j = 0; j < vertic.Size(); j++)
-                    {
-                        auto line = Sprite::create(res);
-                        line->setAnchorPoint(Vec2(0,0));
-
-                        auto physicsBody = PhysicsBody::createBox(Size(line->getContentSize().width*fabs(line->getScaleX()),
-                                                            line->getContentSize().height*fabs(line->getScaleY())), 
-                                                    PhysicsMaterial(0.0f, 0.0f, 1.0f));
-                        physicsBody->setDynamic(false);
-                        
-
-                       
-                        line->setScale(vertic[j][2].GetInt()/line->getContentSize().width,
-                                        vertic[j][1].GetInt()*vertic[j][2].GetInt()/line->getContentSize().height);
-                        line->setPosition(vertic[j][2].GetInt()*vertic[j][0][0].GetInt(), vertic[j][2].GetInt()*vertic[j][0][1].GetInt());
-                        
-                        line->setPhysicsBody(physicsBody);
-                        layer->addChild(line);
-
-                    }
-                 }
             }
+        }
+
+        rapidjson::Value &weapon = map["weapon"];
+        if(weapon.IsArray())
+        {
+            for (unsigned int i = 0; i < weapon.Size(); ++i)
+            {
+
+               Turel::CreateStandTurel(layer, Vec2(weapon[i]["position"][0].GetInt(),weapon[i]["position"][1].GetInt()), weapon[i]["orientation"].GetBool(), weapon[i]["type"].GetInt());
+            }
+              
         }
     }
 }
