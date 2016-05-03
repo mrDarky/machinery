@@ -50,6 +50,17 @@ private:
     void updateSec(float delta);
     void update_delSec(float delta);
 
+    void onMouseMove(cocos2d::Event *event);
+
+    void onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event);
+    void onKeyReleased(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event);
+
+    bool onContactBegin(cocos2d::PhysicsContact& contact);
+
+    bool onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event);
+    void onTouchEnded(cocos2d::Touch* touch, cocos2d::Event* event);
+
+
     bool jumpHero;
     
 };
