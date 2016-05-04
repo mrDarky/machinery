@@ -28,13 +28,13 @@ Turel* Turel::CreateStandTurel(cocos2d::Layer* layer, cocos2d::Vec2 pos_turel, b
  
 void Turel::createTurel_type1(cocos2d::Vec2 pos_turel)
 {
-	turel = Sprite::create("turel.png");
+	turel = Sprite::create("body/turel.png");
 	
 	
 	if(orientation)
-		turel->setScale(-visibleSize.width/(turel->getContentSize().width)*0.15,visibleSize.width/(turel->getContentSize().height)*0.05);
+		turel->setScale(-visibleSize.width/(turel->getContentSize().width)*0.12,visibleSize.width/(turel->getContentSize().height)*0.03);
 	else
-		turel->setScale(visibleSize.width/turel->getContentSize().width*0.15, visibleSize.width/turel->getContentSize().height*0.05);
+		turel->setScale(visibleSize.width/turel->getContentSize().width*0.12, visibleSize.width/turel->getContentSize().height*0.03);
 
 	turel->setPosition(pos_turel);
 	
@@ -46,20 +46,22 @@ void Turel::createTurel_type1(cocos2d::Vec2 pos_turel)
         spriteBody->setDynamic( false );
         turel->setPhysicsBody( spriteBody );
     }
-	turel->setAnchorPoint(Vec2(1,0));
-    layer1->addChild(turel);
+	turel->setAnchorPoint(Vec2(1,0.5));
+    
 
 
     //add turel body
     turel_body1 = Sprite::create("turel_body1.png");
 
-    if(orientation)
-    	turel_body1->setScale(visibleSize.width/(turel->getContentSize().width)*0.06,visibleSize.width/(turel->getContentSize().height)*0.02);
-    else
-    	turel_body1->setScale(-visibleSize.width/turel->getContentSize().width*0.06, visibleSize.width/turel->getContentSize().height*0.02);
-    turel_body1->setPosition(pos_turel.x, pos_turel.y-turel_body1->getBoundingBox().size.height/4);
-
-    //MyBodyParser::getInstance()->parseJsonFile( "body/TurelBody1.json" );
+    if(orientation){
+    	turel_body1->setScale(visibleSize.width/(turel->getContentSize().width)*0.07,visibleSize.width/(turel->getContentSize().height)*0.012);
+    	turel_body1->setPosition(pos_turel.x-33, pos_turel.y-turel_body1->getBoundingBox().size.height/2+30);
+    }
+    else{
+    	turel_body1->setScale(-visibleSize.width/turel->getContentSize().width*0.07, visibleSize.width/turel->getContentSize().height*0.012);
+    	turel_body1->setPosition(pos_turel.x+33, pos_turel.y-turel_body1->getBoundingBox().size.height/2+30);
+    }
+    
 
     auto spriteBody1 = MyBodyParser::getInstance()->bodyFormJson(turel_body1, "TurelBody1", PhysicsMaterial( 0, 0, 0 ) );
 
@@ -70,6 +72,7 @@ void Turel::createTurel_type1(cocos2d::Vec2 pos_turel)
     }
 
     layer1->addChild(turel_body1);
+    layer1->addChild(turel);
 }
 
 Turel::Turel(cocos2d::Layer* layer, bool orient)
@@ -87,10 +90,10 @@ Turel::Turel(cocos2d::Layer* layer, bool orient)
 }
 
 Turel::~Turel(){
-	for(unsigned i=0; i< all_turel.size(); ++i)
-	{
-		delete[] all_turel[i];
-	}
+	// for(unsigned i=0; i< all_turel.size(); ++i)
+	// {
+	// 	delete[] all_turel[i];
+	// }
 	
 }
 
@@ -105,20 +108,18 @@ cocos2d::Sprite *Turel::getTurel()
 void Turel::followHero(cocos2d::Vec2 pos_hero)
 {
 	Vec2 pos_turel = turel->getPosition();
-
-	angle = CC_RADIANS_TO_DEGREES(atan((pos_hero.y-pos_turel.y)/(pos_hero.x-pos_turel.x)));
+	angle = atanf((pos_hero.y-pos_turel.y)/(pos_hero.x-pos_turel.x));
 
 
 	if(pos_hero.x > pos_turel.x){
 		if(orientation)
 		{	
-			angle = -(angle-5);
-			turel->setRotation(angle);
+			turel->setRotation(CC_RADIANS_TO_DEGREES(-angle));
 			shoot=true;
 		}
 		else
 		{
-			turel->setRotation(angle);
+			turel->setRotation(CC_RADIANS_TO_DEGREES(angle));
 			shoot=false;
 		}
 	}
@@ -126,13 +127,12 @@ void Turel::followHero(cocos2d::Vec2 pos_hero)
 	{
 		if(orientation)
 		{
-			turel->setRotation(angle);
+			turel->setRotation(CC_RADIANS_TO_DEGREES(angle));
 			shoot=false;
 		}
 		else
 		{
-			angle = -(angle+5);
-			turel->setRotation(angle);
+			turel->setRotation(CC_RADIANS_TO_DEGREES(-angle));
 			shoot=true;
 		}
 		
@@ -144,40 +144,20 @@ void Turel::followHero(cocos2d::Vec2 pos_hero)
 
 cocos2d::Vec2 Turel::getPos_bullet()
 {
-	Vec2 pos_turel_start = turel->getPosition();
-	Vec2 pos_turel_end = Vec2(turel->getPosition().x+turel->getContentSize().width*fabs(turel->getScaleX()), turel->getPosition().y);
 
-	float coor1_x = pos_turel_end.x - pos_turel_start.x;
-	float coor1_y = pos_turel_end.y - pos_turel_start.y+turel->getBoundingBox().size.height;
-	//CCLOG("%f", cos(angle));
-	// if(angle<0)
-	// {
-	// 	angle=-angle;
-	// }
+	float coor1_x = turel->getContentSize().width*fabs(turel->getScaleX())+10;
 	float formula1_x, formula1_y;
-	if(orientation)
-		formula1_x = cosf(CC_DEGREES_TO_RADIANS(angle))*sqrtf(coor1_x*coor1_x+coor1_y*coor1_y)+pos_turel_start.x;
-	else
-		formula1_x = -cosf(CC_DEGREES_TO_RADIANS(angle))*sqrtf(coor1_x*coor1_x+coor1_y*coor1_y)+pos_turel_start.x;
-	
-	if(angle<0){
-		//CCLOG("%f", angle);
+
 		if(orientation)
 		{
-			formula1_y = cosf(CC_DEGREES_TO_RADIANS(90+angle))*sqrtf(coor1_x*coor1_x+coor1_y*coor1_y)+pos_turel_start.y+turel->getBoundingBox().size.height/4+10;
+			formula1_x = cosf(angle)*coor1_x+turel->getPosition().x;
+			formula1_y = sinf(angle)*coor1_x + turel->getPosition().y;
 		}
 		else
 		{
-			formula1_y = -30-cosf(CC_DEGREES_TO_RADIANS(90+angle))*sqrtf(coor1_x*coor1_x+coor1_y*coor1_y)+pos_turel_start.y+turel->getContentSize().width/4*fabs(turel->getScaleY());
+			formula1_x = -cosf(angle)*coor1_x+turel->getPosition().x;
+			formula1_y = -sinf(angle)*coor1_x+turel->getPosition().y;
 		}
-	}
-	else
-	{
-		if(orientation)
-			formula1_y = -cosf((90-angle)/57)*sqrtf(coor1_x*coor1_x+coor1_y*coor1_y)+pos_turel_start.y+turel->getContentSize().width*0.01*fabs(turel->getScaleY())+30;
-		else 
-			formula1_y = cosf((90-angle)/57)*sqrtf(coor1_x*coor1_x+coor1_y*coor1_y)+pos_turel_start.y+turel->getContentSize().width*0.01*fabs(turel->getScaleY())+40;
-	}
 
 	return cocos2d::Vec2(formula1_x, formula1_y);
 }
@@ -192,7 +172,7 @@ void Turel::add_Bullet()
 		else
 			bullet->setScale(visibleSize.width/bullet->getContentSize().width*0.015, visibleSize.height/bullet->getContentSize().height*0.015);
 		
-		
+		bullet->setPosition(getPos_bullet());
 
 		auto spriteBody_bullet = MyBodyParser::getInstance()->bodyFormJson(bullet, "bullet1", PhysicsMaterial( 0, 0, 0 ) ); 
 	
@@ -200,20 +180,23 @@ void Turel::add_Bullet()
 	    {
 	        spriteBody_bullet->setDynamic( true );
 	        if(orientation)
-	        	spriteBody_bullet->setVelocity(Vec2(1000*cosf(angle/57), -1000*sinf(angle/57)));
-	        else
-	        	spriteBody_bullet->setVelocity(Vec2(-1000*cosf(angle/57), 1000*sinf(angle/57)));
+	        	spriteBody_bullet->setVelocity( Vec2(200*cosf(angle), 200*sinf(angle) ));
+	        else	
+	        	spriteBody_bullet->setVelocity(Vec2(-200*cosf(angle), -200*sinf(angle)));
 
 	        spriteBody_bullet->setGravityEnable(false);
 	        spriteBody_bullet->setTag(5);
 	        spriteBody_bullet->setContactTestBitmask(1);
 
+   			bullet->setRotation(CC_RADIANS_TO_DEGREES(-angle));
 	        bullet->setPhysicsBody( spriteBody_bullet );
 	    }
-	    bullet->setRotation(angle+7);
+
+
+	    
 	    //bullet->setPosition(turel->getPosition().x+turel->getBoundingBox().size.width,
 	    //						turel->getPosition().y+turel->getBoundingBox().size.height);
-	    bullet->setPosition(getPos_bullet());
+	    
 	
 		vector_bullets.pushBack(bullet);
 	
