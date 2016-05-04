@@ -18,7 +18,7 @@ class Turel
        
     private:
 
-        Turel(cocos2d::Layer *layer, cocos2d::Vec2 pos_turel, bool orient, int type);
+        Turel(cocos2d::Layer *layer, bool orient);
         ~Turel();
 
 
@@ -34,7 +34,7 @@ class Turel
 
         cocos2d::Vec2 getPos_bullet();
 
-        void createTurel_type1(cocos2d::Vec2 pos_turel, bool orient);
+        void createTurel_type1(cocos2d::Vec2 pos_turel);
 
         bool orientation;
         

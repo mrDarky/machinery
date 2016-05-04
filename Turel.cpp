@@ -7,19 +7,31 @@ USING_NS_CC;
 
 Turel* Turel::CreateStandTurel(cocos2d::Layer* layer, cocos2d::Vec2 pos_turel, bool orient, int type)
 {
-	Turel *mainTurel = new (std::nothrow) Turel(layer, pos_turel, orient, type);
+	Turel *mainTurel = new (std::nothrow) Turel(layer, orient);
+
+
+	 //add turel head
+
+	MyBodyParser::getInstance()->parseJsonFile( "body/Turel.json" );
+	
+	switch(type)
+	{
+		case 1:
+			mainTurel->createTurel_type1(pos_turel);
+			break;
+	}
 
 
 	all_turel.insert(all_turel.end(), mainTurel);
 	return mainTurel;
 }
  
-void Turel::createTurel_type1(cocos2d::Vec2 pos_turel, bool orient)
+void Turel::createTurel_type1(cocos2d::Vec2 pos_turel)
 {
 	turel = Sprite::create("turel.png");
 	
 	
-	if(orient)
+	if(orientation)
 		turel->setScale(-visibleSize.width/(turel->getContentSize().width)*0.15,visibleSize.width/(turel->getContentSize().height)*0.05);
 	else
 		turel->setScale(visibleSize.width/turel->getContentSize().width*0.15, visibleSize.width/turel->getContentSize().height*0.05);
@@ -41,13 +53,13 @@ void Turel::createTurel_type1(cocos2d::Vec2 pos_turel, bool orient)
     //add turel body
     turel_body1 = Sprite::create("turel_body1.png");
 
-    if(orient)
+    if(orientation)
     	turel_body1->setScale(visibleSize.width/(turel->getContentSize().width)*0.06,visibleSize.width/(turel->getContentSize().height)*0.02);
     else
     	turel_body1->setScale(-visibleSize.width/turel->getContentSize().width*0.06, visibleSize.width/turel->getContentSize().height*0.02);
     turel_body1->setPosition(pos_turel.x, pos_turel.y-turel_body1->getBoundingBox().size.height/4);
 
-    MyBodyParser::getInstance()->parseJsonFile( "body/TurelBody1.json" );
+    //MyBodyParser::getInstance()->parseJsonFile( "body/TurelBody1.json" );
 
     auto spriteBody1 = MyBodyParser::getInstance()->bodyFormJson(turel_body1, "TurelBody1", PhysicsMaterial( 0, 0, 0 ) );
 
@@ -60,7 +72,7 @@ void Turel::createTurel_type1(cocos2d::Vec2 pos_turel, bool orient)
     layer1->addChild(turel_body1);
 }
 
-Turel::Turel(cocos2d::Layer* layer, cocos2d::Vec2 pos_turel, bool orient, int type)
+Turel::Turel(cocos2d::Layer* layer, bool orient)
 {
 
 	layer1 = layer;
@@ -70,20 +82,7 @@ Turel::Turel(cocos2d::Layer* layer, cocos2d::Vec2 pos_turel, bool orient, int ty
 	visibleSize = Director::getInstance()->getVisibleSize();
     origin = Director::getInstance()->getVisibleOrigin();
 
-    //add turel head
-
-	MyBodyParser::getInstance()->parseJsonFile( "body/Turel.json" );
-	
-	switch(type)
-	{
-		case 1:
-			createTurel_type1(pos_turel, orient);
-			break;
-	}
-	
-	
-    MyBodyParser::getInstance()->parseJsonFile( "body/Turel.json" );
-
+   
 
 }
 
