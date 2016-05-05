@@ -7,13 +7,11 @@ MySprite::MySprite(cocos2d::Layer *layer)
     visibleSize = Director::getInstance()->getVisibleSize();
     origin = Director::getInstance()->getVisibleOrigin();
 
-    hero = Sprite::create("player1.png");
+    hero = Sprite::create("player2.png");
     hero->setPosition(Point(600,500));
-    
-    hero->setScale(visibleSize.width/(hero->getContentSize().width)*0.09, visibleSize.width/(hero->getContentSize().width)*0.09);
+    hero->setScale(0.25, 0.25);
     //radius1 = hero->getContentSize().width*hero->getScaleX();
-    auto physicsBody = PhysicsBody::createCircle(hero->getBoundingBox().size.width, PhysicsMaterial(0.0f, 0.0f, 0.2f));
-    hero->setScale(visibleSize.width/(hero->getContentSize().width)*0.09, visibleSize.width/(hero->getContentSize().width)*0.09);
+    auto physicsBody = PhysicsBody::createCircle(hero->getBoundingBox().size.width*2, PhysicsMaterial(0.0f, 0.0f, 0.5f));
    
     physicsBody->setContactTestBitmask(true);
     // physicsBody->setCategoryBitmask(0x02);    
@@ -21,6 +19,9 @@ MySprite::MySprite(cocos2d::Layer *layer)
     physicsBody->setTag(11);
     physicsBody->setRotationEnable(true);
     physicsBody->setDynamic(true);
+
+   
+
 
     hero->setPhysicsBody(physicsBody);
 

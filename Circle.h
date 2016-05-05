@@ -14,6 +14,9 @@ class Circle
         cocos2d::DrawNode* getCircle();
         cocos2d::DrawNode* getCircle_Sector();
         cocos2d::DrawNode* getFollowCircle();
+        cocos2d::DrawNode* getEye1Circle();
+        cocos2d::DrawNode* getEye2Circle();
+
         float getCircleOverload();
         void setCircleOverload(float change);
         void reloadSector_new();
@@ -31,6 +34,8 @@ class Circle
         cocos2d::DrawNode* circlePoint;
         cocos2d::DrawNode* reloadSector;
         cocos2d::DrawNode* followCircle;
+        cocos2d::DrawNode* eye_circle1;
+        cocos2d::DrawNode* eye_circle2;
 
         cocos2d::Vec2 newCoord;
 

@@ -11,7 +11,7 @@ class Turel
         void addEvents();
         void followHero(cocos2d::Vec2 pos_turel);
         cocos2d::Sprite *getTurel();
-        void add_Bullet();
+        void add_Bullet(cocos2d::Vec2 pos_hero);
         static std::vector<Turel *> get_allTurel();
 
         static Turel* CreateStandTurel(cocos2d::Layer* layer, cocos2d::Vec2 pos_turel, bool orient, int type);

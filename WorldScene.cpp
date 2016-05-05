@@ -1,5 +1,5 @@
 #include "WorldScene.h"
-
+#include "Definitions.h"
 
 
 USING_NS_CC;
@@ -7,7 +7,7 @@ USING_NS_CC;
 Scene* WorldScene::createScene()
 {
     auto scene = Scene::createWithPhysics( );
-    //scene->getPhysicsWorld( )->setDebugDrawMask( PhysicsWorld::DEBUGDRAW_ALL );
+   // scene->getPhysicsWorld( )->setDebugDrawMask( PhysicsWorld::DEBUGDRAW_ALL );
     scene->getPhysicsWorld( )->setGravity(Vec2(0, -2000));
 
     auto layer = WorldScene::create();
@@ -30,21 +30,22 @@ bool WorldScene::init()
 
     jumpHero = false;
 
-    // auto background = Sprite::create("blue_fon1.jpg");
-    // background->setPosition( Vec2(visibleSize.width, 
-    //                             visibleSize.height));
-    // background->setScale(2,2);
-    // this->addChild(background, 0);
+    auto background = Sprite::create("blue_fon1.jpg");
+    background->setPosition( Vec2(visibleSize.width, 
+                                visibleSize.height));
+    background->setScale(2,2);
+    this->addChild(background, 0);
 
 
     //generate map
     _map_create = new MapGenerator(this);
-    //generate Circle elements, camera following, skills elements
-    _circlePoint = new Circle(this);
-
     //create main hero
     _mySprite = new MySprite(this);
     _mySprite->addEvents();
+    //generate Circle elements, camera following, skills elements
+    _circlePoint = new Circle(this);
+
+    
 
 
 
@@ -95,6 +96,12 @@ void WorldScene::update(float delta)
     _circlePoint->getCircle_Sector()->setPosition(Vec2(_mySprite->returnHero()->getPosition().x-100,
                                     _mySprite->returnHero()->getPosition().y-100));
 
+    // _circlePoint->getEye1Circle()->setPosition(Vec2(_mySprite->returnHero()->getPosition().x+30,
+    //                                 _mySprite->returnHero()->getPosition().y+20));
+    // _circlePoint->getEye2Circle()->setPosition(Vec2(_mySprite->returnHero()->getPosition().x+10,
+    //                                 _mySprite->returnHero()->getPosition().y+30));
+
+
     if(_circlePoint->getCircleOverload()>0)
         _circlePoint->setCircleOverload(_circlePoint->getCircleOverload()-0.5);
     _circlePoint->reloadSector_new();
@@ -117,12 +124,47 @@ void WorldScene::update(float delta)
 
 
 
+
     if(_circlePoint->getFocusVec().x > visibleSize.width/2)
+    {
         _circlePoint->getFollowCircle()->setPosition( Vec2 (_mySprite->returnHero()->getPosition().x+coef*cosf(_circlePoint->getFocusAngle() ),
                                                     _mySprite->returnHero()->getPosition().y-coef*sinf(-_circlePoint->getFocusAngle()) ) );
+
+         if(CC_RADIANS_TO_DEGREES(_circlePoint->getFocusAngle())>=10){
+
+            _circlePoint->getEye1Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x+LEN_EYE*cosf(_circlePoint->getFocusAngle())+7,
+                                             _mySprite->returnHero()->getPosition().y-LEN_EYE*sinf(-_circlePoint->getFocusAngle())-5*cosf(_circlePoint->getFocusAngle()) ) );
+            _circlePoint->getEye2Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x+LEN_EYE*cosf(_circlePoint->getFocusAngle()),
+                                     _mySprite->returnHero()->getPosition().y-LEN_EYE*sinf(-_circlePoint->getFocusAngle()) ) );
+
+        }else{
+            float s = CC_DEGREES_TO_RADIANS(10);
+            _circlePoint->getEye1Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x+LEN_EYE*cosf(s)+7,
+                                             _mySprite->returnHero()->getPosition().y-LEN_EYE*sinf(-s)-5*cosf(s) ) );
+            _circlePoint->getEye2Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x+LEN_EYE*cosf(s),
+                                     _mySprite->returnHero()->getPosition().y-LEN_EYE*sinf(-s) ) );
+        }
+
+    }
     else
+    {
         _circlePoint->getFollowCircle()->setPosition( Vec2 (_mySprite->returnHero()->getPosition().x-coef*cosf(-_circlePoint->getFocusAngle() ),
                                                     _mySprite->returnHero()->getPosition().y-coef*sinf(_circlePoint->getFocusAngle()) ) );
+
+        if(CC_RADIANS_TO_DEGREES(_circlePoint->getFocusAngle())<=-10){
+            _circlePoint->getEye1Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x-LEN_EYE*cosf(-_circlePoint->getFocusAngle()),
+                                             _mySprite->returnHero()->getPosition().y-LEN_EYE*sinf(_circlePoint->getFocusAngle()) ) );
+            _circlePoint->getEye2Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x-LEN_EYE*cosf(-_circlePoint->getFocusAngle())-7,
+                                     _mySprite->returnHero()->getPosition().y+LEN_EYE*sinf(-_circlePoint->getFocusAngle())-5*cosf(_circlePoint->getFocusAngle()) ) );
+
+        }else{
+            float s = CC_DEGREES_TO_RADIANS(-10);
+            _circlePoint->getEye1Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x-LEN_EYE*cosf(-s),
+                                             _mySprite->returnHero()->getPosition().y-LEN_EYE*sinf(s) ) );
+            _circlePoint->getEye2Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x-LEN_EYE*cosf(-s)-7,
+                                     _mySprite->returnHero()->getPosition().y+LEN_EYE*sinf(-s)-5*cosf(s) ) );
+        }
+    }
 
   
 }
@@ -152,7 +194,7 @@ void WorldScene::updateSec(float delta)
     
      for (unsigned int i = 0; i < Turel::get_allTurel().size(); ++i)
     {
-        Turel::get_allTurel()[i]->add_Bullet();
+        Turel::get_allTurel()[i]->add_Bullet(_mySprite->returnHero()->getPosition());
     }
 
 }
@@ -183,11 +225,8 @@ void WorldScene::onMouseMove(Event *event)
 {
     EventMouse* e = (EventMouse*)event;
 
-    float angle;
-    //if(visibleSize.height/2 - e->getCursorY()!=0 && visibleSize.width/2 - e->getCursorX() !=0)    
-        angle = atanf((visibleSize.height/2 - e->getCursorY())/(visibleSize.width/2 - e->getCursorX()));
-    // else
-    //     angle=0;
+    float angle = atanf((visibleSize.height/2 - e->getCursorY())/(visibleSize.width/2 - e->getCursorX()));
+
     _circlePoint->setFocusAngle(angle);
     _circlePoint->setFocusVec( Vec2 (e->getCursorX(), e->getCursorY() ));
 
@@ -196,14 +235,50 @@ void WorldScene::onMouseMove(Event *event)
 
     coef = 200*(x/x_max);
 
-    if(e->getCursorX() > visibleSize.width/2){
+    float len = 15;
+
+    if(e->getCursorX() > visibleSize.width/2)
+    {
         _circlePoint->getFollowCircle()->setPosition( Vec2 (_mySprite->returnHero()->getPosition().x+coef*cosf(angle),
                                             _mySprite->returnHero()->getPosition().y-coef*sinf(-angle) ) );
-        
-    }else if(e->getCursorX() < visibleSize.width/2){
+
+
+
+        if(CC_RADIANS_TO_DEGREES(angle)>=10){
+
+            _circlePoint->getEye1Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x+len*cosf(angle)+7,
+                                             _mySprite->returnHero()->getPosition().y-len*sinf(-angle)-5*cosf(angle) ) );
+            _circlePoint->getEye2Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x+len*cosf(angle),
+                                     _mySprite->returnHero()->getPosition().y-len*sinf(-angle) ) );
+
+        }else{
+            float s = CC_DEGREES_TO_RADIANS(10);
+            _circlePoint->getEye1Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x+len*cosf(s)+7,
+                                             _mySprite->returnHero()->getPosition().y-len*sinf(-s)-5*cosf(s) ) );
+            _circlePoint->getEye2Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x+len*cosf(s),
+                                     _mySprite->returnHero()->getPosition().y-len*sinf(-s) ) );
+        }
+    }
+    else if(e->getCursorX() < visibleSize.width/2)
+    {
         _circlePoint->getFollowCircle()->setPosition( Vec2 (_mySprite->returnHero()->getPosition().x-coef*cosf(-angle),
                                             _mySprite->returnHero()->getPosition().y-coef*sinf(angle) ) );
+
+        if(CC_RADIANS_TO_DEGREES(angle)<=-10){
+            _circlePoint->getEye1Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x-len*cosf(-angle),
+                                             _mySprite->returnHero()->getPosition().y-len*sinf(angle) ) );
+            _circlePoint->getEye2Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x-len*cosf(-angle)-7,
+                                     _mySprite->returnHero()->getPosition().y+len*sinf(-angle)-5*cosf(angle) ) );
+
+        }else{
+            float s = CC_DEGREES_TO_RADIANS(-10);
+            _circlePoint->getEye1Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x-len*cosf(-s),
+                                             _mySprite->returnHero()->getPosition().y-len*sinf(s) ) );
+            _circlePoint->getEye2Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x-len*cosf(-s)-7,
+                                     _mySprite->returnHero()->getPosition().y+len*sinf(-s)-5*cosf(s) ) );
+        }
     }
+
 }
 
 

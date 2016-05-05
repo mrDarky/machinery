@@ -162,9 +162,12 @@ cocos2d::Vec2 Turel::getPos_bullet()
 	return cocos2d::Vec2(formula1_x, formula1_y);
 }
 
-void Turel::add_Bullet()
+void Turel::add_Bullet(cocos2d::Vec2 pos_hero)
 {
-	if(shoot)
+
+	float length1 = sqrtf((pos_hero.x-turel->getPosition().x)*(pos_hero.x-turel->getPosition().x)+(pos_hero.y-turel->getPosition().y)*(pos_hero.y-turel->getPosition().y));
+	
+	if(shoot && length1<1000)
 	{
 		auto bullet = Sprite::create("bullet1.png");
 		if(orientation)
@@ -192,12 +195,6 @@ void Turel::add_Bullet()
 	        bullet->setPhysicsBody( spriteBody_bullet );
 	    }
 
-
-	    
-	    //bullet->setPosition(turel->getPosition().x+turel->getBoundingBox().size.width,
-	    //						turel->getPosition().y+turel->getBoundingBox().size.height);
-	    
-	
 		vector_bullets.pushBack(bullet);
 	
 		layer1->addChild(bullet);
