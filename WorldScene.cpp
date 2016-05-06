@@ -96,14 +96,10 @@ void WorldScene::update(float delta)
     _circlePoint->getCircle_Sector()->setPosition(Vec2(_mySprite->returnHero()->getPosition().x-100,
                                     _mySprite->returnHero()->getPosition().y-100));
 
-    // _circlePoint->getEye1Circle()->setPosition(Vec2(_mySprite->returnHero()->getPosition().x+30,
-    //                                 _mySprite->returnHero()->getPosition().y+20));
-    // _circlePoint->getEye2Circle()->setPosition(Vec2(_mySprite->returnHero()->getPosition().x+10,
-    //                                 _mySprite->returnHero()->getPosition().y+30));
 
-
-    if(_circlePoint->getCircleOverload()>0)
-        _circlePoint->setCircleOverload(_circlePoint->getCircleOverload()-0.5);
+    if(_circlePoint->getCircleOverload()-1.0>0)
+        _circlePoint->setCircleOverload(_circlePoint->getCircleOverload()-1.0);
+    else  _circlePoint->setCircleOverload(0);
     _circlePoint->reloadSector_new();
 
     
@@ -116,12 +112,12 @@ void WorldScene::update(float delta)
         _mySprite->returnHero()->getPhysicsBody()->setVelocity(Vec2(0, _mySprite->returnHero()->getPhysicsBody()->getVelocity().y));
     }
 
+
+//TODO: create a variable to stop
     for (unsigned int i = 0; i < Turel::get_allTurel().size(); ++i)
     {
         Turel::get_allTurel()[i]->followHero(_mySprite->returnHero()->getPosition());
     }
-
-
 
 
 
@@ -166,6 +162,21 @@ void WorldScene::update(float delta)
         }
     }
 
+    if(_circlePoint->getCircleOverload()+1.5<360){
+        if(_circlePoint->getTimeStop()){
+            sceneWorld->setSpeed(0);
+            _circlePoint->setCircleOverload(_circlePoint->getCircleOverload()+1.5);
+        }
+        
+    }
+    else
+    {
+        _circlePoint->getCircle()->setVisible(false);
+        // /_circlePoint->getCircle_Sector()->setVisible(false);
+        _circlePoint->setTimeStop(false);
+        sceneWorld->setSpeed(1);
+    }
+    
   
 }
 
@@ -225,6 +236,8 @@ void WorldScene::onMouseMove(Event *event)
 {
     EventMouse* e = (EventMouse*)event;
 
+
+
     float angle = atanf((visibleSize.height/2 - e->getCursorY())/(visibleSize.width/2 - e->getCursorX()));
 
     _circlePoint->setFocusAngle(angle);
@@ -242,15 +255,11 @@ void WorldScene::onMouseMove(Event *event)
         _circlePoint->getFollowCircle()->setPosition( Vec2 (_mySprite->returnHero()->getPosition().x+coef*cosf(angle),
                                             _mySprite->returnHero()->getPosition().y-coef*sinf(-angle) ) );
 
-
-
         if(CC_RADIANS_TO_DEGREES(angle)>=10){
-
             _circlePoint->getEye1Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x+len*cosf(angle)+7,
                                              _mySprite->returnHero()->getPosition().y-len*sinf(-angle)-5*cosf(angle) ) );
             _circlePoint->getEye2Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x+len*cosf(angle),
                                      _mySprite->returnHero()->getPosition().y-len*sinf(-angle) ) );
-
         }else{
             float s = CC_DEGREES_TO_RADIANS(10);
             _circlePoint->getEye1Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x+len*cosf(s)+7,
@@ -360,6 +369,11 @@ bool WorldScene::onTouchBegan(Touch* touch, Event* event)
     auto bounds = event->getCurrentTarget()->getBoundingBox();
     _circlePoint->getCircle()->setVisible(true);
     _circlePoint->getCircle_Sector()->setVisible(true);
+
+    if(_circlePoint->getCircleOverload()+0.6<360){
+        _circlePoint->setTimeStop(true);
+    }
+    //sceneWorld->step(10);
     //this->schedule(schedule_selector(WorldScene::updateSec), 5.0f);
 
 
@@ -387,14 +401,20 @@ bool WorldScene::onTouchBegan(Touch* touch, Event* event)
 
 void WorldScene::onTouchEnded(Touch* touch, Event* event)
 {
-    _circlePoint->getCircle()->setVisible(false);
-    _circlePoint->getCircle_Sector()->setVisible(false);
 
-    //this->schedule(schedule_selector(WorldScene::updateSec), 0.3f);
+    if(_circlePoint->getTimeStop())
+    { 
+        _circlePoint->getCircle()->setVisible(false);
+        //_circlePoint->getCircle_Sector()->setVisible(false);
+        _circlePoint->setTimeStop(false);
 
-    if(_circlePoint->getCircleOverload()+45.0<360){
-        _circlePoint->setCircleOverload(_circlePoint->getCircleOverload()+45.0);
-        _mySprite->returnHero()->setPosition(event->getCurrentTarget()->convertToNodeSpace(touch->getLocation()));
+        //this->schedule(schedule_selector(WorldScene::updateSec), 0.3f);
+
+        if(_circlePoint->getCircleOverload()+60.0<360){
+            _mySprite->returnHero()->setPosition(event->getCurrentTarget()->convertToNodeSpace(touch->getLocation()));
+            _circlePoint->setCircleOverload(_circlePoint->getCircleOverload()+60.0);
+        }
+        sceneWorld->setSpeed(1);
     }
 }
 

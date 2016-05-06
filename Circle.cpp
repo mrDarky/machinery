@@ -6,6 +6,9 @@ USING_NS_CC;
 
 Circle::Circle(cocos2d::Layer* layer)
 {
+
+  time_stop=false;
+
   circle_overload = 0;
   circlePoint = DrawNode::create();
   circlePoint->drawCircle(Vec2(100,100), 200, 10, 60,false, Color4F::BLUE);
@@ -27,11 +30,13 @@ Circle::Circle(cocos2d::Layer* layer)
 
   eye_circle1 = DrawNode::create();
   eye_circle1->drawSolidCircle(Vec2(0,0), 7, 10, 60, 0.4f, 1.0f, Color4F::WHITE);
+  eye_circle1->drawCircle(Vec2(0,0), 1, 10, 60, false, Color4F::BLACK);
   //eye_circle1->setScaleX(eye_circle1->getContentSize().width*0.9);
   
 
   eye_circle2 = DrawNode::create();
   eye_circle2->drawSolidCircle(Vec2(0,0), 7, 10, 60, 0.4f, 1.0f, Color4F::WHITE);
+  eye_circle2->drawCircle(Vec2(0,0), 1, 10, 60, false, Color4F::BLACK);
   layer->addChild(eye_circle2);
   layer->addChild(eye_circle1);
 
@@ -127,4 +132,14 @@ void Circle::setFocusAngle(float angle)
 float Circle::getFocusAngle()
 {
   return focusAngle;
+}
+
+void Circle::setTimeStop(bool stop)
+{
+  time_stop=stop;
+}
+
+bool Circle::getTimeStop()
+{
+  return time_stop;
 }

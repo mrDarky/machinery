@@ -13,12 +13,13 @@ class Turel
         cocos2d::Sprite *getTurel();
         void add_Bullet(cocos2d::Vec2 pos_hero);
         static std::vector<Turel *> get_allTurel();
+        float getAngle(cocos2d::Vec2 pos_hero);
 
-        static Turel* CreateStandTurel(cocos2d::Layer* layer, cocos2d::Vec2 pos_turel, bool orient, int type);
+        static Turel* CreateStandTurel(cocos2d::Layer* layer, cocos2d::Vec2 pos_turel, cocos2d::Vec2 orient, int type);
        
     private:
 
-        Turel(cocos2d::Layer *layer, bool orient);
+        Turel();
         ~Turel();
 
 
@@ -30,16 +31,18 @@ class Turel
        // cocos2d::Vec2 
         cocos2d::Vector<cocos2d::Sprite *> vector_bullets;
         static std::vector<Turel *> all_turel;
-        cocos2d::Sprite *turel_body1;
 
         cocos2d::Vec2 getPos_bullet();
 
         void createTurel_type1(cocos2d::Vec2 pos_turel);
+        void createTurel_type2(cocos2d::Vec2 pos_turel);
 
         bool orientation;
+        cocos2d::Vec2 vec2_angle;
         
         float angle;
         bool shoot;
+        bool rotation;
 
 
        //static std::vector<cocos2d::Sprite> all_bullets;

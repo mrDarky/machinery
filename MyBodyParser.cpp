@@ -130,7 +130,7 @@ void MyBodyParser::generateMap(cocos2d::Layer *layer)
             for (unsigned int i = 0; i < weapon.Size(); ++i)
             {
 
-               Turel::CreateStandTurel(layer, Vec2(weapon[i]["position"][0].GetInt(),weapon[i]["position"][1].GetInt()), weapon[i]["orientation"].GetBool(), weapon[i]["type"].GetInt());
+               Turel::CreateStandTurel(layer, Vec2(weapon[i]["position"][0].GetInt(),weapon[i]["position"][1].GetInt()), Vec2(weapon[i]["angle"][0].GetInt(),weapon[i]["angle"][1].GetInt()), weapon[i]["type"].GetInt());
             }
               
         }

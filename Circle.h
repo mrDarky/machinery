@@ -27,6 +27,9 @@ class Circle
         void setFocusAngle(float angle);
         float getFocusAngle();
 
+        void setTimeStop(bool stop);
+        bool getTimeStop();
+
     private:
         cocos2d::Size visibleSize;
         cocos2d::Vec2 origin; 
@@ -44,6 +47,8 @@ class Circle
 
         float circle_overload;
         float focusAngle;
+
+        bool time_stop;
     	
 };
 
