@@ -7,7 +7,7 @@ USING_NS_CC;
 Scene* WorldScene::createScene()
 {
     auto scene = Scene::createWithPhysics( );
-   // scene->getPhysicsWorld( )->setDebugDrawMask( PhysicsWorld::DEBUGDRAW_ALL );
+    //scene->getPhysicsWorld( )->setDebugDrawMask( PhysicsWorld::DEBUGDRAW_ALL );
     scene->getPhysicsWorld( )->setGravity(Vec2(0, -2000));
 
     auto layer = WorldScene::create();
@@ -112,15 +112,6 @@ void WorldScene::update(float delta)
         _mySprite->returnHero()->getPhysicsBody()->setVelocity(Vec2(0, _mySprite->returnHero()->getPhysicsBody()->getVelocity().y));
     }
 
-
-//TODO: create a variable to stop
-    for (unsigned int i = 0; i < Turel::get_allTurel().size(); ++i)
-    {
-        Turel::get_allTurel()[i]->followHero(_mySprite->returnHero()->getPosition());
-    }
-
-
-
     if(_circlePoint->getFocusVec().x > visibleSize.width/2)
     {
         _circlePoint->getFollowCircle()->setPosition( Vec2 (_mySprite->returnHero()->getPosition().x+coef*cosf(_circlePoint->getFocusAngle() ),
@@ -164,6 +155,7 @@ void WorldScene::update(float delta)
 
     if(_circlePoint->getCircleOverload()+1.5<360){
         if(_circlePoint->getTimeStop()){
+            stopPhysicsWorld=false;
             sceneWorld->setSpeed(0);
             _circlePoint->setCircleOverload(_circlePoint->getCircleOverload()+1.5);
         }
@@ -174,7 +166,17 @@ void WorldScene::update(float delta)
         _circlePoint->getCircle()->setVisible(false);
         // /_circlePoint->getCircle_Sector()->setVisible(false);
         _circlePoint->setTimeStop(false);
+        stopPhysicsWorld=true;
         sceneWorld->setSpeed(1);
+
+    }
+
+    if(stopPhysicsWorld)
+    {
+        for (unsigned int i = 0; i < Turel::get_allTurel().size(); ++i)
+        {
+            Turel::get_allTurel()[i]->followHero(_mySprite->returnHero()->getPosition());
+        }
     }
     
   
@@ -415,6 +417,7 @@ void WorldScene::onTouchEnded(Touch* touch, Event* event)
             _circlePoint->setCircleOverload(_circlePoint->getCircleOverload()+60.0);
         }
         sceneWorld->setSpeed(1);
+        stopPhysicsWorld=true;
     }
 }
 

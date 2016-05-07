@@ -56,6 +56,7 @@ private:
 
 
     bool jumpHero;
+    bool stopPhysicsWorld;
     float coef;
     
 };
