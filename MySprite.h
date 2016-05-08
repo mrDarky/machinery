@@ -19,7 +19,10 @@ class MySprite : public cocos2d::Sprite
     	cocos2d::Size visibleSize;
     	cocos2d::Vec2 origin;
 
+    	void onMouseMove(cocos2d::Event *event);
+
     	float radius1;
+    	cocos2d::Layer *layer1;
     
 };
 

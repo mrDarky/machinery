@@ -30,6 +30,9 @@ class Circle
         void setTimeStop(bool stop);
         bool getTimeStop();
 
+        void update(cocos2d::Vec2 pos_hero, float coef);
+        void onMouseMove(cocos2d::EventMouse* e, cocos2d::Vec2 pos_hero, float coef);
+
     private:
         cocos2d::Size visibleSize;
         cocos2d::Vec2 origin; 

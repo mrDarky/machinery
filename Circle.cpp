@@ -7,6 +7,7 @@ USING_NS_CC;
 Circle::Circle(cocos2d::Layer* layer)
 {
 
+  visibleSize = Director::getInstance()->getVisibleSize();
   time_stop=false;
 
   circle_overload = 0;
@@ -142,4 +143,95 @@ void Circle::setTimeStop(bool stop)
 bool Circle::getTimeStop()
 {
   return time_stop;
+}
+
+void Circle::update(Vec2 pos_hero, float coef)
+{
+  //update circle point
+  circlePoint->setPosition(Vec2(pos_hero.x-100, pos_hero.y-100));
+  reloadSector->setPosition(Vec2(pos_hero.x-100, pos_hero.y-100));
+
+  //update overload circle
+  if(circle_overload-1.0>0)
+      circle_overload--;
+  else  circle_overload = 0;
+  reloadSector_new();
+
+  if(newCoord.x > visibleSize.width/2)
+  {
+
+      followCircle->setPosition( Vec2 (pos_hero.x+coef*cosf( focusAngle ), pos_hero.y-coef*sinf(-focusAngle) ) );
+
+       if(CC_RADIANS_TO_DEGREES(focusAngle)>=10){
+
+          eye_circle1->setPosition( Vec2( pos_hero.x+LEN_EYE*cosf(focusAngle)+7, pos_hero.y-LEN_EYE*sinf(-focusAngle)-5*cosf(focusAngle) ) );
+          eye_circle2->setPosition( Vec2( pos_hero.x+LEN_EYE*cosf(focusAngle), pos_hero.y-LEN_EYE*sinf(-focusAngle) ) );
+
+      }else{
+          float s = CC_DEGREES_TO_RADIANS(10);
+          eye_circle1->setPosition( Vec2( pos_hero.x+LEN_EYE*cosf(s)+7, pos_hero.y-LEN_EYE*sinf(-s)-5*cosf(s) ) );
+          eye_circle2->setPosition( Vec2( pos_hero.x+LEN_EYE*cosf(s), pos_hero.y-LEN_EYE*sinf(-s) ) );
+      }
+
+  }
+  else
+  {
+
+    
+      followCircle->setPosition( Vec2 (pos_hero.x-coef*cosf(-focusAngle ), pos_hero.y-coef*sinf(focusAngle) ) );
+
+      if(CC_RADIANS_TO_DEGREES(focusAngle)<=-10){
+          eye_circle1->setPosition( Vec2( pos_hero.x-LEN_EYE*cosf(-focusAngle), pos_hero.y-LEN_EYE*sinf(focusAngle) ) );
+          eye_circle2->setPosition( Vec2( pos_hero.x-LEN_EYE*cosf(-focusAngle)-7, pos_hero.y+LEN_EYE*sinf(-focusAngle)-5*cosf(focusAngle) ) );
+
+      }else{
+          float s = CC_DEGREES_TO_RADIANS(-10);
+          eye_circle1->setPosition( Vec2( pos_hero.x-LEN_EYE*cosf(-s), pos_hero.y-LEN_EYE*sinf(s) ) );
+          eye_circle2->setPosition( Vec2( pos_hero.x-LEN_EYE*cosf(-s)-7, pos_hero.y+LEN_EYE*sinf(-s)-5*cosf(s) ) );
+      }
+  }
+
+
+
+}
+
+void Circle::onMouseMove(EventMouse* e, Vec2 pos_hero, float coef)
+{
+  float angle = atanf((visibleSize.height/2 - e->getCursorY())/(visibleSize.width/2 - e->getCursorX()));
+
+  focusAngle = angle;
+  newCoord = Vec2( e->getCursorX(), e->getCursorY() );
+
+  
+
+  float len = 15;
+
+  if(e->getCursorX() > visibleSize.width/2)
+  {
+      followCircle->setPosition( Vec2 (pos_hero.x+coef*cosf(angle), pos_hero.y-coef*sinf(-angle) ) );
+
+      if(CC_RADIANS_TO_DEGREES(angle)>=10){
+          eye_circle1->setPosition( Vec2( pos_hero.x+len*cosf(angle)+7, pos_hero.y-len*sinf(-angle)-5*cosf(angle) ) );
+          eye_circle2->setPosition( Vec2( pos_hero.x+len*cosf(angle), pos_hero.y-len*sinf(-angle) ) );
+      }else{
+          float s = CC_DEGREES_TO_RADIANS(10);
+          eye_circle1->setPosition( Vec2( pos_hero.x+len*cosf(s)+7, pos_hero.y-len*sinf(-s)-5*cosf(s) ) );
+          eye_circle2->setPosition( Vec2( pos_hero.x+len*cosf(s), pos_hero.y-len*sinf(-s) ) );
+      }
+  }
+  else if(e->getCursorX() < visibleSize.width/2)
+  {
+      followCircle->setPosition( Vec2 (pos_hero.x-coef*cosf(-angle), pos_hero.y-coef*sinf(angle) ) );
+
+      if(CC_RADIANS_TO_DEGREES(angle)<=-10){
+          eye_circle1->setPosition( Vec2( pos_hero.x-len*cosf(-angle), pos_hero.y-len*sinf(angle) ) );
+          eye_circle2->setPosition( Vec2( pos_hero.x-len*cosf(-angle)-7, pos_hero.y+len*sinf(-angle)-5*cosf(angle) ) );
+
+      }else{
+          float s = CC_DEGREES_TO_RADIANS(-10);
+          eye_circle1->setPosition( Vec2( pos_hero.x-len*cosf(-s), pos_hero.y-len*sinf(s) ) );
+          eye_circle2->setPosition( Vec2( pos_hero.x-len*cosf(-s)-7, pos_hero.y+len*sinf(-s)-5*cosf(s) ) );
+      }
+  }
+
 }

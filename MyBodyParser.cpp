@@ -105,7 +105,7 @@ void MyBodyParser::generateMap(cocos2d::Layer *layer)
 
                     auto physicsBody = PhysicsBody::createBox(Size(line->getContentSize().width,
                                                         line->getContentSize().height), 
-                                                PhysicsMaterial(0.0f, 0.0f, 1.0f));
+                                                PhysicsMaterial(1.0f, 0.0f, 1.0f));
                     physicsBody->setDynamic(false);
                     physicsBody->setContactTestBitmask(true);
                     physicsBody->setTag(10);

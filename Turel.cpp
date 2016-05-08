@@ -18,8 +18,8 @@ Turel* Turel::CreateStandTurel(cocos2d::Layer* layer, cocos2d::Vec2 pos_turel, V
 	else
 		mainTurel->orientation = false;
 
-	//add turel head
-	MyBodyParser::getInstance()->parseJsonFile( "body/Turel.json" );
+	 //add turel head
+    MyBodyParser::getInstance()->parseJsonFile( "body/Turel.json" ); 	
 	
 	switch(type)
 	{
@@ -157,6 +157,7 @@ Turel::Turel()
 	rotation=false;
 	follow=false;
 	angle=0;
+	length_max=1000;
 	visibleSize = Director::getInstance()->getVisibleSize();
     origin = Director::getInstance()->getVisibleOrigin();
 }
@@ -177,29 +178,38 @@ cocos2d::Sprite *Turel::getTurel()
 	return turel;
 }
 
+
+bool Turel::checkShoot(cocos2d::Vec2 pos)
+{
+	float length1 = sqrtf((pos.x-turel->getPosition().x)*(pos.x-turel->getPosition().x)+(pos.y-turel->getPosition().y)*(pos.y-turel->getPosition().y));
+	// check angle for shootiong
+	if(length1<length_max)
+	{
+		
+		if(vec2_angle.y<vec2_angle.x)
+		{
+			if((CC_RADIANS_TO_DEGREES(angle)>=vec2_angle.x && cosf(angle)>=cosf(CC_DEGREES_TO_RADIANS(vec2_angle.x))) 
+				|| (CC_RADIANS_TO_DEGREES(angle)<=vec2_angle.y && cosf(angle)>=cosf(CC_DEGREES_TO_RADIANS(vec2_angle.y))) ){
+				return true;
+			}else{
+				return false;
+			}
+		}
+		else
+		{
+			if(CC_RADIANS_TO_DEGREES(angle)>=vec2_angle.x && CC_RADIANS_TO_DEGREES(angle)<=vec2_angle.y)
+				return true;
+			else
+				return false;
+		}
+	}
+
+	return  false;
+}
+
 float Turel::getAngle(cocos2d::Vec2 pos)
 {
 	Vec2 pos_turel = turel->getPosition();
-
-
-	// check angle for shootiong
-	if(vec2_angle.y<vec2_angle.x)
-	{
-
-		if((CC_RADIANS_TO_DEGREES(angle)>=vec2_angle.x && cosf(angle)>=cosf(CC_DEGREES_TO_RADIANS(vec2_angle.x))) 
-			|| (CC_RADIANS_TO_DEGREES(angle)<=vec2_angle.y && cosf(angle)>=cosf(CC_DEGREES_TO_RADIANS(vec2_angle.y))) ){
-			shoot=true;
-		}else{
-			shoot=false;
-		}
-	}
-	else
-	{
-		if(CC_RADIANS_TO_DEGREES(angle)>=vec2_angle.x && CC_RADIANS_TO_DEGREES(angle)<=vec2_angle.y)
-			shoot=true;
-		else
-			shoot=false;
-	}
 
 	float angle1;
 
@@ -220,22 +230,12 @@ float Turel::getAngle(cocos2d::Vec2 pos)
 	return angle1;
 }
 
-// Vec2 Turel::getFolow(cocos2d::Vec2 pos_hero)
-// {
-// 	Vec2 pos_turel = turel->getPosition();
-
-
-	
-
-
-
-// }
-
 void Turel::followHero(cocos2d::Vec2 pos_hero)
 {
+
 	angle = getAngle(pos_hero);
 
-	if(shoot && rotation){
+	if(shoot && rotation && checkShoot(pos_hero)){
 		
 		turel->setRotation(CC_RADIANS_TO_DEGREES(-angle));	
 	}
@@ -266,9 +266,9 @@ cocos2d::Vec2 Turel::getPos_bullet()
 void Turel::add_Bullet(cocos2d::Vec2 pos_hero)
 {
 
-	float length1 = sqrtf((pos_hero.x-turel->getPosition().x)*(pos_hero.x-turel->getPosition().x)+(pos_hero.y-turel->getPosition().y)*(pos_hero.y-turel->getPosition().y));
+	shoot = checkShoot(pos_hero);
 	
-	if(shoot && length1<1000)
+	if(shoot)
 	{
 
 		auto bullet = Sprite::create("bullet1.png");

@@ -13,10 +13,8 @@ class WorldScene : public cocos2d::Layer
 public:
     static cocos2d::Scene* createScene();
 
-    virtual bool init();
-    
-    // a selector callback
-    void menuCloseCallback(cocos2d::Ref* pSender);
+    virtual bool init() override;    
+
 
     // implement the "static create()" method manually
     CREATE_FUNC(WorldScene);
@@ -50,6 +48,7 @@ private:
     bool isKeyPressed(cocos2d::EventKeyboard::KeyCode);
 
     bool onContactBegin(cocos2d::PhysicsContact& contact);
+    bool onContactPreSolve(cocos2d::PhysicsContact& contact, cocos2d::PhysicsContactPreSolve& solve);
 
     bool onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event);
     void onTouchEnded(cocos2d::Touch* touch, cocos2d::Event* event);

@@ -29,6 +29,9 @@ bool WorldScene::init()
     origin = Director::getInstance()->getVisibleOrigin();
 
     jumpHero = false;
+    stopPhysicsWorld=true;
+
+   
 
     auto background = Sprite::create("blue_fon1.jpg");
     background->setPosition( Vec2(visibleSize.width, 
@@ -66,6 +69,7 @@ bool WorldScene::init()
 ////[start] contacts event
     auto contactListener = EventListenerPhysicsContact::create();
     contactListener->onContactBegin = CC_CALLBACK_1(WorldScene::onContactBegin, this);
+    contactListener->onContactPreSolve = CC_CALLBACK_2(WorldScene::onContactPreSolve, this);
     this->getEventDispatcher()->addEventListenerWithSceneGraphPriority(contactListener, this);
 ////[end] contacts event
 
@@ -91,18 +95,8 @@ bool WorldScene::init()
 void WorldScene::update(float delta)
 {
 
-    _circlePoint->getCircle()->setPosition(Vec2(_mySprite->returnHero()->getPosition().x-100,
-                                    _mySprite->returnHero()->getPosition().y-100));
-    _circlePoint->getCircle_Sector()->setPosition(Vec2(_mySprite->returnHero()->getPosition().x-100,
-                                    _mySprite->returnHero()->getPosition().y-100));
+    _circlePoint->update(_mySprite->returnHero()->getPosition(), coef);
 
-
-    if(_circlePoint->getCircleOverload()-1.0>0)
-        _circlePoint->setCircleOverload(_circlePoint->getCircleOverload()-1.0);
-    else  _circlePoint->setCircleOverload(0);
-    _circlePoint->reloadSector_new();
-
-    
 
     Node::update(delta);
     Layer::update(delta);
@@ -111,46 +105,20 @@ void WorldScene::update(float delta)
     {
         _mySprite->returnHero()->getPhysicsBody()->setVelocity(Vec2(0, _mySprite->returnHero()->getPhysicsBody()->getVelocity().y));
     }
-
-    if(_circlePoint->getFocusVec().x > visibleSize.width/2)
+    if(isKeyPressed(EventKeyboard::KeyCode::KEY_D) ) 
     {
-        _circlePoint->getFollowCircle()->setPosition( Vec2 (_mySprite->returnHero()->getPosition().x+coef*cosf(_circlePoint->getFocusAngle() ),
-                                                    _mySprite->returnHero()->getPosition().y-coef*sinf(-_circlePoint->getFocusAngle()) ) );
-
-         if(CC_RADIANS_TO_DEGREES(_circlePoint->getFocusAngle())>=10){
-
-            _circlePoint->getEye1Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x+LEN_EYE*cosf(_circlePoint->getFocusAngle())+7,
-                                             _mySprite->returnHero()->getPosition().y-LEN_EYE*sinf(-_circlePoint->getFocusAngle())-5*cosf(_circlePoint->getFocusAngle()) ) );
-            _circlePoint->getEye2Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x+LEN_EYE*cosf(_circlePoint->getFocusAngle()),
-                                     _mySprite->returnHero()->getPosition().y-LEN_EYE*sinf(-_circlePoint->getFocusAngle()) ) );
-
-        }else{
-            float s = CC_DEGREES_TO_RADIANS(10);
-            _circlePoint->getEye1Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x+LEN_EYE*cosf(s)+7,
-                                             _mySprite->returnHero()->getPosition().y-LEN_EYE*sinf(-s)-5*cosf(s) ) );
-            _circlePoint->getEye2Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x+LEN_EYE*cosf(s),
-                                     _mySprite->returnHero()->getPosition().y-LEN_EYE*sinf(-s) ) );
-        }
+        if(_mySprite->returnHero()->getPhysicsBody()->getVelocity().x<1000)
+            _mySprite->returnHero()->getPhysicsBody()->applyImpulse(Vec2(10,0));
+       // _mySprite->returnHero()->getPhysicsBody()->setVelocity(Vec2(500, _mySprite->returnHero()->getPhysicsBody()->getVelocity().y));
 
     }
-    else
+    if(isKeyPressed(EventKeyboard::KeyCode::KEY_A) ) 
     {
-        _circlePoint->getFollowCircle()->setPosition( Vec2 (_mySprite->returnHero()->getPosition().x-coef*cosf(-_circlePoint->getFocusAngle() ),
-                                                    _mySprite->returnHero()->getPosition().y-coef*sinf(_circlePoint->getFocusAngle()) ) );
+        if(_mySprite->returnHero()->getPhysicsBody()->getVelocity().x>-1000)
+            _mySprite->returnHero()->getPhysicsBody()->applyImpulse(Vec2(-10,0));
 
-        if(CC_RADIANS_TO_DEGREES(_circlePoint->getFocusAngle())<=-10){
-            _circlePoint->getEye1Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x-LEN_EYE*cosf(-_circlePoint->getFocusAngle()),
-                                             _mySprite->returnHero()->getPosition().y-LEN_EYE*sinf(_circlePoint->getFocusAngle()) ) );
-            _circlePoint->getEye2Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x-LEN_EYE*cosf(-_circlePoint->getFocusAngle())-7,
-                                     _mySprite->returnHero()->getPosition().y+LEN_EYE*sinf(-_circlePoint->getFocusAngle())-5*cosf(_circlePoint->getFocusAngle()) ) );
+       // _mySprite->returnHero()->getPhysicsBody()->setVelocity(Vec2(500, _mySprite->returnHero()->getPhysicsBody()->getVelocity().y));
 
-        }else{
-            float s = CC_DEGREES_TO_RADIANS(-10);
-            _circlePoint->getEye1Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x-LEN_EYE*cosf(-s),
-                                             _mySprite->returnHero()->getPosition().y-LEN_EYE*sinf(s) ) );
-            _circlePoint->getEye2Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x-LEN_EYE*cosf(-s)-7,
-                                     _mySprite->returnHero()->getPosition().y+LEN_EYE*sinf(-s)-5*cosf(s) ) );
-        }
     }
 
     if(_circlePoint->getCircleOverload()+1.5<360){
@@ -217,15 +185,6 @@ void WorldScene::update_delSec(float delta)
 }
 
 
-void WorldScene::menuCloseCallback(Ref* pSender)
-{
-    Director::getInstance()->end();
-
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-    exit(0);
-#endif
-}
-
 
 bool WorldScene::isKeyPressed(EventKeyboard::KeyCode code) {
     if(keys.find(code) != keys.end())
@@ -237,58 +196,13 @@ bool WorldScene::isKeyPressed(EventKeyboard::KeyCode code) {
 void WorldScene::onMouseMove(Event *event)
 {
     EventMouse* e = (EventMouse*)event;
-
-
-
-    float angle = atanf((visibleSize.height/2 - e->getCursorY())/(visibleSize.width/2 - e->getCursorX()));
-
-    _circlePoint->setFocusAngle(angle);
-    _circlePoint->setFocusVec( Vec2 (e->getCursorX(), e->getCursorY() ));
-
     float x = sqrtf(fabs((e->getCursorX()-visibleSize.width/2)*(e->getCursorX()-visibleSize.width/2)) + fabs((e->getCursorY()-visibleSize.height/2)*(e->getCursorY()-visibleSize.height/2)));
     float x_max = sqrtf(visibleSize.width*visibleSize.width/4+visibleSize.height*visibleSize.height/4);
 
     coef = 200*(x/x_max);
 
-    float len = 15;
+    _circlePoint->onMouseMove(e, _mySprite->returnHero()->getPosition(), coef);
 
-    if(e->getCursorX() > visibleSize.width/2)
-    {
-        _circlePoint->getFollowCircle()->setPosition( Vec2 (_mySprite->returnHero()->getPosition().x+coef*cosf(angle),
-                                            _mySprite->returnHero()->getPosition().y-coef*sinf(-angle) ) );
-
-        if(CC_RADIANS_TO_DEGREES(angle)>=10){
-            _circlePoint->getEye1Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x+len*cosf(angle)+7,
-                                             _mySprite->returnHero()->getPosition().y-len*sinf(-angle)-5*cosf(angle) ) );
-            _circlePoint->getEye2Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x+len*cosf(angle),
-                                     _mySprite->returnHero()->getPosition().y-len*sinf(-angle) ) );
-        }else{
-            float s = CC_DEGREES_TO_RADIANS(10);
-            _circlePoint->getEye1Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x+len*cosf(s)+7,
-                                             _mySprite->returnHero()->getPosition().y-len*sinf(-s)-5*cosf(s) ) );
-            _circlePoint->getEye2Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x+len*cosf(s),
-                                     _mySprite->returnHero()->getPosition().y-len*sinf(-s) ) );
-        }
-    }
-    else if(e->getCursorX() < visibleSize.width/2)
-    {
-        _circlePoint->getFollowCircle()->setPosition( Vec2 (_mySprite->returnHero()->getPosition().x-coef*cosf(-angle),
-                                            _mySprite->returnHero()->getPosition().y-coef*sinf(angle) ) );
-
-        if(CC_RADIANS_TO_DEGREES(angle)<=-10){
-            _circlePoint->getEye1Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x-len*cosf(-angle),
-                                             _mySprite->returnHero()->getPosition().y-len*sinf(angle) ) );
-            _circlePoint->getEye2Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x-len*cosf(-angle)-7,
-                                     _mySprite->returnHero()->getPosition().y+len*sinf(-angle)-5*cosf(angle) ) );
-
-        }else{
-            float s = CC_DEGREES_TO_RADIANS(-10);
-            _circlePoint->getEye1Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x-len*cosf(-s),
-                                             _mySprite->returnHero()->getPosition().y-len*sinf(s) ) );
-            _circlePoint->getEye2Circle()->setPosition( Vec2( _mySprite->returnHero()->getPosition().x-len*cosf(-s)-7,
-                                     _mySprite->returnHero()->getPosition().y+len*sinf(-s)-5*cosf(s) ) );
-        }
-    }
 
 }
 
@@ -306,13 +220,15 @@ void WorldScene::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
     }
     if(keyCode == EventKeyboard::KeyCode::KEY_D) 
     {
-        _mySprite->returnHero()->getPhysicsBody()->setVelocity(Vec2(500, _mySprite->returnHero()->getPhysicsBody()->getVelocity().y));
+        if(_mySprite->returnHero()->getPhysicsBody()->getVelocity().x<0)
+            _mySprite->returnHero()->getPhysicsBody()->setVelocity(Vec2(0, _mySprite->returnHero()->getPhysicsBody()->getVelocity().y));
+
 
     }
     if(keyCode == EventKeyboard::KeyCode::KEY_A) 
     {
-        _mySprite->returnHero()->getPhysicsBody()->setVelocity(Vec2(-500, _mySprite->returnHero()->getPhysicsBody()->getVelocity().y));
-
+        if(_mySprite->returnHero()->getPhysicsBody()->getVelocity().x>0)
+            _mySprite->returnHero()->getPhysicsBody()->setVelocity(Vec2(0, _mySprite->returnHero()->getPhysicsBody()->getVelocity().y));
     }
 }
 
@@ -358,12 +274,35 @@ bool WorldScene::onContactBegin(PhysicsContact& contact)
             if(bodyA->getNode()->getPosition().y >= bodyB->getNode()->getPosition().y+bodyB->getNode()->getBoundingBox().size.height)
                     jumpHero=true;
         }
-        if ((shapeA->getCategoryBitmask() & shapeB->getCollisionBitmask()) == 0 
-            || (shapeB->getCategoryBitmask() & shapeA->getCollisionBitmask()) == 0)
-        {
-           return false;
-        }
+        // if ((shapeA->getCategoryBitmask() & shapeB->getCollisionBitmask()) == 0 
+        //     || (shapeB->getCategoryBitmask() & shapeA->getCollisionBitmask()) == 0)
+        // {
+        //    return false;
+        // }
         return true;
+}
+
+
+bool WorldScene::onContactPreSolve(PhysicsContact& contact, PhysicsContactPreSolve& solve)
+{
+    auto shapeA = contact.getShapeA();
+    auto bodyA = shapeA->getBody();
+    auto shapeB = contact.getShapeB();
+    auto bodyB = shapeB->getBody();
+
+    if(bodyA->getTag()==10 && bodyB->getTag()==11)
+    {
+        
+        if(bodyB->getNode()->getPosition().y >= bodyA->getNode()->getPosition().y+bodyA->getNode()->getBoundingBox().size.height)
+                jumpHero=true;
+    }
+    else if(bodyA->getTag()==11 && bodyB->getTag()==10)
+    {
+        if(bodyA->getNode()->getPosition().y >= bodyB->getNode()->getPosition().y+bodyB->getNode()->getBoundingBox().size.height)
+                jumpHero=true;
+    }
+
+    return true;
 }
 
 bool WorldScene::onTouchBegan(Touch* touch, Event* event)
